@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Common/">
+    <Project Path="src/Common/iMean.CSharp.Kata.Core.Abstractions/iMean.CSharp.Kata.Core.Abstractions.csproj" Id="7651745a-b80c-4d5b-9285-530739e97082" />
+    <Project Path="src/Common/iMean.CSharp.Kata.Core/iMean.CSharp.Kata.Core.csproj" Id="86f69c72-eb3a-4484-9808-325e9e24a750" />
+  </Folder>
+  <Folder Name="/Templates/" />
+  <Folder Name="/Templates/Katas/">
+    <File Path="src/Templates/Katas/README.md" />
+  </Folder>
+  <Folder Name="/Éléments de solution/">
+    <File Path="src/.editorconfig" />
+  </Folder>
+  <Project Path="src/iMean.CSharp.Kata.Console.Helpers/iMean.CSharp.Kata.Console.Helpers.csproj" Id="e7e70e0c-3129-41e0-b7e3-5f6798f50d6c" />
+  <Project Path="src/iMean.CSharp.Kata.Console/iMean.CSharp.Kata.Console.csproj" Id="ea6dc282-3ae2-4ee0-9beb-a86b528b6614" />
+</Solution>

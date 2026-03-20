@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
+    <PackageReference Include="Spectre.Console" Version="0.54.0" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.53.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\iMean.CSharp.Kata.Core\iMean.CSharp.Kata.Core.csproj" />
+    <ProjectReference Include="..\iMean.CSharp.Kata.Console.Helpers\iMean.CSharp.Kata.Console.Helpers.csproj" />
+  </ItemGroup>
+
+</Project>
