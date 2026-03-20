@@ -1,88 +1,184 @@
-# Kata Name (Example)
+# Longest Palindrome
 
 ---
 
 ## Statement
 
-Each lowercase letter has a value equal to its position in the alphabet:
-`a = 1`, `b = 2`, `c = 3` ... `z = 26`. **Spaces are ignored.**
+You are given a string that may contain **uppercase and lowercase letters**, **accented characters**, and **spaces**.
 
-Given a list of strings, compute for each string its **letter sum**, 
-then multiply it by the **1-based position** of that string in the list. 
-Return the list of results.
+Your task is to find and return the **longest palindrome** that can be found within that string. If multiple palindromes share the same maximum length, return the **first one found** (i.e. the one whose starting index is encountered first during detection).
 
 ---
 
-## Input
+## Normalization Rules
+
+Before evaluating whether a substring is a palindrome, apply the following normalization — **for comparison only**. The returned result must always preserve the **original characters** (original casing and accents).
+
+**Case** is ignored:
+- `"Ete"` and `"ete"` are treated as equivalent.
+
+**Spaces** are ignored during comparison:
+- `"never odd or even"` is a valid palindrome — spaces are stripped before comparison.
+
+**Accented characters** are mapped to their base letter:
+
+| Accented    | Base letter |
+|:-----------:|:-----------:|
+| `é è ê ë`  | `e`         |
+| `à â ä`    | `a`         |
+| `î ï`      | `i`         |
+| `ô ö`      | `o`         |
+| `ù û ü`    | `u`         |
+| `ç`        | `c`         |
+
+> **Example:** `"Éte"` normalizes to `"ete"`, which reversed is `"ete"` — it is a palindrome.  
+> The returned value is `"Éte"` (original form).
+
+---
+
+## Return Value
+
+- Return the **original substring** (casing and accents preserved) corresponding to the longest palindrome found.
+- A **single character** is a valid palindrome (e.g. `"a"`).
+- If the input is empty or no palindrome can be determined, return `""`.
+
+> [!IMPORTANT]
+> The returned string must be the **original** substring extracted from the input — **not** its normalized form.
+
+> [!WARNING]
+> Spaces are stripped **for comparison only**. The returned substring must include the original spaces.  
+> For example, for input `"never odd or even"`, return `"never odd or even"`, not `"neveroddoreven"`.
+
+---
+
+## Examples
+
+### Example 1 — Basic palindrome
 
 ```plaintext
-Line 1      : int N        — number of strings (1 ≤ N ≤ 1000)
-Lines 2…N+1 : string       — one string per line, lowercase letters and spaces only
-                             (1 ≤ length ≤ 1000 characters, at least one non-space letter)
+Input   : "racecar"
+Output  : "racecar"
 ```
+
+`"racecar"` normalized → `"racecar"` → reversed `"racecar"` ✓
 
 ---
 
-## Output
+### Example 2 — Case insensitivity
 
 ```plaintext
-N integers separated by spaces on a single line
+Input   : "Ete"
+Output  : "Ete"
 ```
 
----
-
-## Constraints
-
-| Variable         | Min  | Max        | Notes                        |
-|:-----------------|:----:|:----------:|:-----------------------------|
-| `N`              | `1`  | `1 000`    | Number of strings            |
-| String length    | `1`  | `1 000`    | Chars including spaces       |
-| Letter value     | `1`  | `26`       | `a = 1` … `z = 26`           |
-| Max output value | —    | `26 000 000` | Fits safely in `int`       |
-
-- Time limit : **1 second**
-- Memory limit : **256 MB**
-- Input contains **only** lowercase characters (`a`–`z`) and spaces
+`"Ete"` normalized → `"ete"` → reversed `"ete"` ✓  
+Returned as original: `"Ete"`.
 
 ---
 
-## Example
+### Example 3 — Accented characters
 
 ```plaintext
-Input           Output
-2               6 24
-abc
-abc abc
+Input   : "Éte"
+Output  : "Éte"
 ```
 
-### Explanation
+`"Éte"` normalized → `"ete"` → reversed `"ete"` ✓  
+Returned as original: `"Éte"`.
 
-| Position | String      | Letter sum                                      | × position  | Result |
-|:--------:|:------------|:-----------------------------------------------:|:-----------:|:------:|
-| `1`      | `"abc"`     | `1 + 2 + 3 = 6`                                 | `× 1`       | `6`    |
-| `2`      | `"abc abc"` | `1 + 2 + 3 + 1 + 2 + 3 = 12` *(spaces ignored)* | `× 2`       | `24`   |
+---
 
-> **Note :** the space between the two `abc` in `"abc abc"` is ignored — only letter values are summed.
+### Example 4 — Sentence palindrome (spaces ignored)
+
+```plaintext
+Input   : "never odd or even"
+Output  : "never odd or even"
+```
+
+Stripped + lowercased → `"neveroddoreven"` → reversed `"neveroddoreven"` ✓  
+Returned as original: `"never odd or even"`.
+
+---
+
+### Example 5 — Multiple palindromes, return the longest
+
+```plaintext
+Input   : "abacaba"
+Output  : "abacaba"
+```
+
+Candidates: `"aba"` (index 0), `"acaca"` (index 1), `"abacaba"` (index 0) — longest wins.
+
+---
+
+### Example 6 — Tie on length, return the first found
+
+```plaintext
+Input   : "abbacddc"
+Output  : "abba"
+```
+
+`"abba"` (length 4, index 0) and `"cddc"` (length 4, index 4) are both valid.  
+`"abba"` is returned as it is encountered first.
+
+---
+
+### Example 7 — No palindrome of length ≥ 2
+
+```plaintext
+Input   : ""
+Output  : ""
+```
 
 ---
 
 ## Edge Cases
 
 > [!WARNING]
-> A string may contain **leading, trailing, or multiple consecutive spaces** — all must be ignored.
+> A substring made of a **single character** is always a valid palindrome — but only returned if no longer palindrome exists.
 
-> [!IMPORTANT]
-> Position starts at **1**, not 0.
+> [!WARNING]
+> Do **not** strip spaces from the returned string — preserve the original substring exactly as it appears in the input.
 
 > [!TIP]
-> The maximum possible output value per element is `26 × 1000 × 1000 = 26 000 000`, 
-which fits in a standard `int` (max ~2.1 billion).
+> Normalize the entire input once before searching (lowercase + accent replacement + ignore spaces for comparison), but always track positions against the **original** string to reconstruct the result.
 
 ---
 
-## Checklist
+## Solution Levels
 
-- [ ] Item 1
-- [ ] Item 2
-- [ ] Item 3
-- [ ] Item 4
+### Level 1 - Easy
+
+- [ ] Comparison is **case-insensitive**
+- [ ] Spaces are **ignored for comparison**, preserved in output
+~~- [ ] Accented characters are **mapped to their base letter** before comparison~~
+- [ ] A **single character** is a valid palindrome
+- [ ] On length tie, return the **first encountered** palindrome
+- [ ] Return `""` if input is empty
+- [ ] Handle strings containing **only spaces**
+- [ ] Handle strings where **every character** is the same (e.g. `"aaaa"`)
+
+### Level 2 - Medium
+
+- [ ] Comparison is **case-insensitive**
+- [ ] Spaces are **ignored for comparison**, preserved in output
+- [ ] Accented characters are **mapped to their base letter** before comparison
+- [ ] A **single character** is a valid palindrome
+- [ ] On length tie, return the **first encountered** palindrome
+- [ ] Return `""` if input is empty
+- [ ] Handle strings containing **only spaces**
+- [ ] Handle strings where **every character** is the same (e.g. `"aaaa"`)
+- [ ] Solution complexity is better than O(n²)
+
+### Level 3 - Hard
+
+- [ ] Comparison is **case-insensitive**
+- [ ] Spaces are **ignored for comparison**, preserved in output
+- [ ] Accented characters are **mapped to their base letter** before comparison
+- [ ] A **single character** is a valid palindrome
+- [ ] On length tie, return the **first encountered** palindrome
+- [ ] Return `""` if input is empty
+- [ ] Handle strings containing **only spaces**
+- [ ] Handle strings where **every character** is the same (e.g. `"aaaa"`)
+- [ ] Solution should have a O(1) memory consumption.
+
