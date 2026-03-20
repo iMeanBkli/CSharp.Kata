@@ -1,4 +1,4 @@
-# Word Values
+# Kata Name (Example)
 
 ---
 
@@ -49,10 +49,10 @@ N integers separated by spaces on a single line
 ## Example
 
 ```plaintext
-Input               Output
-["abc"]             [6]
-["abc abc"]         [12]
-["abc", "abc abc"]  [6, 24]
+Input           Output
+2               6 24
+abc
+abc abc
 ```
 
 ### Explanation
@@ -82,8 +82,7 @@ which fits in a standard `int` (max ~2.1 billion).
 
 ## Checklist
 
-- [ ] Ignore all spaces in letter sum computation
-- [ ] Position is **1-based**
-- [ ] Each string is on its own line
-- [ ] Handle strings with only spaces *(not guaranteed by constraints, but worth checking)*
-
+- [ ] Item 1
+- [ ] Item 2
+- [ ] Item 3
+- [ ] Item 4
