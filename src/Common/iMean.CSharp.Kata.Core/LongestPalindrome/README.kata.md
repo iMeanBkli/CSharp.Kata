@@ -20,7 +20,7 @@ Before evaluating whether a substring is a palindrome, apply the following norma
 **Spaces** are ignored during comparison:
 - `"never odd or even"` is a valid palindrome — spaces are stripped before comparison.
 
-**Accented characters** are mapped to their base letter:
+**Accented characters** are mapped to their base letter (applies for *Medium* and *Hard* levels):
 
 | Accented    | Base letter |
 |:-----------:|:-----------:|
@@ -151,7 +151,6 @@ Output  : ""
 
 - [ ] Comparison is **case-insensitive**
 - [ ] Spaces are **ignored for comparison**, preserved in output
-~~- [ ] Accented characters are **mapped to their base letter** before comparison~~
 - [ ] A **single character** is a valid palindrome
 - [ ] On length tie, return the **first encountered** palindrome
 - [ ] Return `""` if input is empty
