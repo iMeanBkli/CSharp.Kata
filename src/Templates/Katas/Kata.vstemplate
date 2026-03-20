@@ -1,0 +1,29 @@
+<VSTemplate Version="3.0.0"
+            Type="Item"
+            xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+	<TemplateData>
+		<Name>Kata</Name>
+		<Description>
+			Kata file containing all implementations for kata execution.
+		</Description>
+		<Icon>__TemplateIcon.ico</Icon>
+		<ProjectType>CSharp</ProjectType>
+		<DefaultName>Kata</DefaultName>
+		<ProvideDefaultName>true</ProvideDefaultName>
+		<NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+	</TemplateData>
+	<TemplateContent>
+		<ProjectItem SubType="Code"
+					 TargetFileName="$fileinputname$Kata.cs"
+					 ReplaceParameters="true">
+			Kata.cs
+		</ProjectItem>
+		<ProjectItem SubType="Code"
+					 TargetFileName="README.md">
+			README.md
+		</ProjectItem>
+		<CustomParameters>
+			<CustomParameter Name="$author$" Value="iMeanBkli"/>
+		</CustomParameters>
+	</TemplateContent>
+</VSTemplate>

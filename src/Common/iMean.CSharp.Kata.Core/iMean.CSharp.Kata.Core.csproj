@@ -10,4 +10,8 @@
     <ProjectReference Include="..\iMean.CSharp.Kata.Core.Abstractions\iMean.CSharp.Kata.Core.Abstractions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Javanais\" />
+  </ItemGroup>
+
 </Project>
