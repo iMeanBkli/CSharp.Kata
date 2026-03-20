@@ -5,7 +5,8 @@
   </Folder>
   <Folder Name="/Templates/" />
   <Folder Name="/Templates/Katas/">
-    <File Path="src/Templates/Katas/README.md" />
+    <File Path="Kata.cs" />
+    <File Path="src/Templates/Katas/kata.README.md" />
   </Folder>
   <Folder Name="/Éléments de solution/">
     <File Path="src/.editorconfig" />
