@@ -50,14 +50,14 @@ namespace iMean.CSharp.Kata.Console
         {
             _logger.LogInformation("2. Initializing application context...");
 
-            IEnumerable<IKataExecution> katas = _serviceProvider.GetServices<IKataExecution>();
-            SelectionPrompt<IKataExecution> prompt = _promptHelper.CreateKataSelectionPrompt(katas);
+            IEnumerable<IKata> katas = _serviceProvider.GetServices<IKata>();
+            SelectionPrompt<IKata> prompt = _promptHelper.CreateKataSelectionPrompt(katas);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                IKataExecution selectedKata = await SelectKataAsync(prompt, cancellationToken);
-                RunSelectedKata(selectedKata);
+                IKata selectedKata = await SelectKataAsync(prompt, cancellationToken);
 
+                await RunAsync(selectedKata);
                 await ConfirmAsync("Do you want to run another kata ?", cancellationToken);
             }
         }
@@ -101,10 +101,10 @@ namespace iMean.CSharp.Kata.Console
             _logger.LogInformation("9. Finalizing application shutdown...");
         }
 
-        private void RunSelectedKata(IKataExecution kata)
+        private async Task RunAsync(IKata kata)
         {
             AnsiConsole.Clear();
-            IKataOutput output = _context.Run(kata);
+            IKataOutput output = kata.IsAsync ? await _context.RunAsync(kata) : _context.Run(kata);
 
             if (output.HasValue)
             {
@@ -115,10 +115,9 @@ namespace iMean.CSharp.Kata.Console
             }
         }
 
-        private async Task<IKataExecution> SelectKataAsync(SelectionPrompt<IKataExecution> prompt,
+        private async Task<IKata> SelectKataAsync(SelectionPrompt<IKata> prompt,
             CancellationToken cancellationToken)
         {
-
             AnsiConsole.Clear();
 
             Panel panel = _widgetHelper.CreateApplicationNamePanel();

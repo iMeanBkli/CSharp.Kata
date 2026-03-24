@@ -1,10 +1,16 @@
 namespace iMean.CSharp.Kata.Core.Abstractions
 {
-    public interface IKataExecution
+    public interface IKata
     {
         public string Name { get; }
 
+        public bool IsAsync { get; }
+
+        public IKataInput GetKataInput();
+
         public IKataOutput Execute();
+
+        public Task<IKataOutput> ExecuteAsync();
     }
 
     public interface IKataInput;
