@@ -6,9 +6,9 @@ namespace iMean.CSharp.Kata.Console.Helpers
 {
     public class PromptHelper
     {
-        public SelectionPrompt<IKataExecution> CreateKataSelectionPrompt(IEnumerable<IKataExecution> katas)
+        public SelectionPrompt<IKata> CreateKataSelectionPrompt(IEnumerable<IKata> katas)
         {
-            SelectionPrompt<IKataExecution> prompt = new();
+            SelectionPrompt<IKata> prompt = new();
 
             prompt.Title("Select a [green]kata[/] to run.");
             prompt.MoreChoicesText("[grey](Move up and down to see more katas)[/]");

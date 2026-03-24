@@ -1,11 +1,14 @@
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 
 using iMean.CSharp.Kata.Core.Abstractions;
 
 namespace iMean.CSharp.Kata.Core.WordValues
 {
-    public class WordValuesKata : KataExecution
+    public class WordValuesKata : BaseKata
     {
+        public override bool IsAsync => false;
+
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
@@ -15,18 +18,18 @@ namespace iMean.CSharp.Kata.Core.WordValues
             return new WordValuesInput(["abc", "cba abc", "cba"]);
         }
 
-        private WordValuesOutput DoExecute(WordValuesInput input)
+        private async Task<WordValuesOutput> ComputeValueAsync(WordValuesInput input)
         {
             ArgumentNullException.ThrowIfNull(input, nameof(input));
             ArgumentNullException.ThrowIfNull(input.WordInputValues, nameof(input.WordInputValues));
 
             string[] words = input.WordInputValues;
-            int[] output = new int[words.Length];
+            BufferBlock<KeyValuePair<int, string>> buffer = new();
+            Task<int[]> consumerTask = ConsumeAsync(buffer);
 
-            for (int i = 0; i < words.Length; i++)
-            {
-                output[i] = ComputeWordValue(words[i]) * (i + 1);
-            }
+            ProduceWords(words, buffer);
+
+            int[] output = await consumerTask;
 
             return new WordValuesOutput(output);
         }
@@ -44,21 +47,49 @@ namespace iMean.CSharp.Kata.Core.WordValues
         }
 
         // -------------------------------------
+        // TPL Dataflow
+        // -------------------------------------
+
+        private static void ProduceWords(string[] words, ITargetBlock<KeyValuePair<int, string>> target)
+        {
+            for (int i = 0; i < words.Length; i++)
+            {
+                var word = new KeyValuePair<int, string>(i + 1, words[i]);
+
+                target.Post(word);
+            }
+
+            target.Complete();
+        }
+
+        private async Task<int[]> ConsumeAsync(ISourceBlock<KeyValuePair<int, string>> source)
+        {
+            List<int> values = [];
+
+            while (await source.OutputAvailableAsync())
+            {
+                KeyValuePair<int, string> data = await source.ReceiveAsync();
+
+                int value = ComputeWordValue(data.Value) * data.Key;
+                values.Add(value);
+            }
+
+            return [.. values];
+        }
+
+        // -------------------------------------
         // Overriden Members
         // -------------------------------------
 
         public override string Name => "Word Values";
 
-        protected override IKataInput GetKataInput()
-        {
-            return GetWordValuesInput();
-        }
+        public override IKataInput GetKataInput() => GetWordValuesInput();
 
-        protected override IKataOutput DoExecute(IKataInput input)
+        protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
             if (input is WordValuesInput wordValuesInput)
             {
-                return DoExecute(wordValuesInput);
+                return await ComputeValueAsync(wordValuesInput);
             }
 
             throw new InvalidOperationException($"Input {input} must be of type {nameof(WordValuesInput)}.");

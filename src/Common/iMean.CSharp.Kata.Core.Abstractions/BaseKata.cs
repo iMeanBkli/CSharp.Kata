@@ -1,8 +1,12 @@
 namespace iMean.CSharp.Kata.Core.Abstractions
 {
-    public abstract class KataExecution : IKataExecution
+    public abstract class BaseKata : IKata
     {
         public abstract string Name { get; }
+
+        public abstract bool IsAsync { get; }
+
+        public abstract IKataInput GetKataInput();
 
         public IKataOutput Execute()
         {
@@ -10,7 +14,7 @@ namespace iMean.CSharp.Kata.Core.Abstractions
             {
                 IKataInput input = GetKataInput();
 
-                return DoExecute(input);
+                return DoExecuteAsync(input).GetAwaiter().GetResult();
             }
             catch
             {
@@ -18,9 +22,21 @@ namespace iMean.CSharp.Kata.Core.Abstractions
             }
         }
 
-        protected abstract IKataInput GetKataInput();
+        public async Task<IKataOutput> ExecuteAsync()
+        {
+            try
+            {
+                IKataInput input = GetKataInput();
 
-        protected abstract IKataOutput DoExecute(IKataInput input);
+                return await DoExecuteAsync(input);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        protected abstract Task<IKataOutput> DoExecuteAsync(IKataInput input);
 
         protected abstract class KataInput : IKataInput { }
 
