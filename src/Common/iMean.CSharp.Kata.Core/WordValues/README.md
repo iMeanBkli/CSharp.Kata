@@ -49,10 +49,10 @@ N integers separated by spaces on a single line
 ## Example
 
 ```plaintext
-Input           Output
-2               6 24
-abc
-abc abc
+Input               Output
+["abc"]             [6]
+["abc abc"]         [12]
+["abc", "abc abc"]  [6, 24]
 ```
 
 ### Explanation
