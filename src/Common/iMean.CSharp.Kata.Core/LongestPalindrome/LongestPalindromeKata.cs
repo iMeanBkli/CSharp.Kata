@@ -1,12 +1,10 @@
 // -----------------------------------------------------------------------------
-// <copyright file="JavanaisKata.cs" company="iMean.CSharp.Kata.Core.Javanais">
-//   Copyright (c) iMean.CSharp.Kata.Core.Javanais All rights reserved.
+// <copyright file="LongestPalindromeKata.cs" company="iMean.CSharp.Kata.Core.LongestPalindromeKata">
+//   Copyright (c) iMean.CSharp.Kata.Core.LongestPalindromeKata All rights reserved.
 // </copyright>
 // <author>iMeanBkli</author>
 // -----------------------------------------------------------------------------
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using System.Threading.Tasks.Dataflow;
 
 using iMean.CSharp.Kata.Core.Abstractions;
@@ -24,22 +22,6 @@ namespace iMean.CSharp.Kata.Core.LongestPalindrome
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
-
-        private async Task<LongestPalindromeOutput> FindLongestPalindromeAsync(LongestPalindromeInput input)
-        {
-            if (string.IsNullOrWhiteSpace(input.Value))
-            {
-                return LongestPalindromeOutput.Default;
-            }
-
-            BufferBlock<char[]> buffer = new();
-            ProduceWord(input.Value, buffer);
-            Task<string> consumerTask = ConsumeAsync(buffer);
-
-            string output = await consumerTask;
-
-            return new LongestPalindromeOutput(output);
-        }
 
         private bool TryGetPalindrome(char[] characters, out string palindrome)
         {
@@ -83,26 +65,6 @@ namespace iMean.CSharp.Kata.Core.LongestPalindrome
         // TPL Dataflow
         // -------------------------------------
 
-        private void ProduceWord(string input, ITargetBlock<char[]> target)
-        {
-            List<char> word = [];
-
-            foreach (char @char in input)
-            {
-                if (char.IsWhiteSpace(@char) || char.IsPunctuation(@char))
-                {
-                    target.Post([.. word]);
-                    word.Clear();
-
-                    continue;
-                }
-
-                word.Add(@char);
-            }
-
-            target.Complete();
-        }
-
         private async Task<string> ConsumeAsync(ISourceBlock<char[]> source)
         {
             string output = string.Empty;
@@ -123,13 +85,49 @@ namespace iMean.CSharp.Kata.Core.LongestPalindrome
             return output;
         }
 
+        private void ProduceData(string input, ITargetBlock<char[]> target)
+        {
+            List<char> word = [];
+
+            foreach (char @char in input)
+            {
+                if (char.IsWhiteSpace(@char) || char.IsPunctuation(@char))
+                {
+                    target.Post([.. word]);
+                    word.Clear();
+
+                    continue;
+                }
+
+                word.Add(@char);
+            }
+
+            target.Complete();
+        }
+
+        private async Task<LongestPalindromeOutput> RunDataflowAsync(LongestPalindromeInput input)
+        {
+            if (string.IsNullOrWhiteSpace(input.Value))
+            {
+                return LongestPalindromeOutput.Default;
+            }
+
+            BufferBlock<char[]> buffer = new();
+            ProduceData(input.Value, buffer);
+            Task<string> consumerTask = ConsumeAsync(buffer);
+
+            string output = await consumerTask;
+
+            return new LongestPalindromeOutput(output);
+        }
+
         // -------------------------------------
         // Overriden Members
         // -------------------------------------
 
-        public override string Name => "Longest Palindrome";
-
         public override bool IsAsync => true;
+
+        public override string Name => "Longest Palindrome";
 
         public override IKataInput GetKataInput() => new LongestPalindromeInput(INPUT);
 
@@ -137,7 +135,7 @@ namespace iMean.CSharp.Kata.Core.LongestPalindrome
         {
             if (input is LongestPalindromeInput kataInput)
             {
-                return await FindLongestPalindromeAsync(kataInput);
+                return await RunDataflowAsync(kataInput);
             }
 
             throw new InvalidOperationException($"Input {input} must be of type {nameof(LongestPalindromeInput)}.");

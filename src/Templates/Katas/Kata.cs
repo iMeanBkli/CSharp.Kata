@@ -6,66 +6,96 @@
 // -----------------------------------------------------------------------------
 
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 
 using iMean.CSharp.Kata.Core.Abstractions;
 
 namespace $rootnamespace$
 {
 
-    public class $fileinputname$Kata : KataExecution
+    public class $fileinputname$Kata : BaseKata
     {
+        // -------------------------------------
+        // Constants
+        // -------------------------------------
+
+        private static readonly TInput INPUT = null;
+
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
 
-        private $fileinputname$Input GetWordValuesInput(
+
+        // -------------------------------------
+        // TPL Dataflow
+        // -------------------------------------
+
+        private async Task<TOutput> ConsumeAsync(ISourceBlock<TProduct> source)
         {
-            return new $fileinputname$Input($input$);
+            TOutput output = default;
+
+            while (await source.OutputAvailableAsync())
+            {
+                TProduct data = await source.ReceiveAsync();
+            }
+
+            return output;
         }
 
-        private $fileinputname$Output DoExecute($fileinputname$Input input)
+        private void ProduceData(TInput input, ITargetBlock<TProduct> target)
         {
-            return new $fileinputname$Output();
+            target.Complete();
+        }
+
+        private async Task<$fileinputname$Output> RunDataflowAsync($fileinputname$Input input)
+        {
+            ArgumentNullException.ThrowIfNull(input, nameof(input));
+
+            TInput value = input.Input;
+            BufferBlock<TProduct> buffer = new();
+            Task<TOutput> consumerTask = ConsumeAsync(buffer);
+
+            ProduceData(value, buffer);
+
+            TOutput output = await consumerTask;
+
+            return new $fileinputname$Output(output);
         }
 
         // -------------------------------------
         // Overriden Members
         // -------------------------------------
 
+        public override bool IsAsync => true;
+
         public override string Name => "$fileinputname$";
 
-        protected override IKataInput GetKataInput()
-        {
-            return GetWordValuesInput();
-        }
+        protected override IKataInput GetKataInput() => new $fileinputname$Input(INPUT);
 
-        protected override IKataOutput DoExecute(IKataInput input)
+        protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
-            if (input is $fileinputname$Input $title$Input)
+            if (input is $fileinputname$Input kataInput)
             {
-                return DoExecute($title$Input);
+                return await RunDataflowAsync(kataInput);
             }
 
-            throw new InvalidOperationException($"Input {input} must be of type {nameof($fileinputname$Input)}.");
+            throw new InvalidOperationException($"Input {input} must be of type {nameof(kataInput)}.");
         }
 
-        protected class $fileinputname$Input($input$) : KataInput
+        protected class $fileinputname$Input(TInput value) : KataInput
         {
-            // Input properties are defined here.
+            public TInput? Value { get; init; } = value;
         }
 
-        protected class $fileinputname$Output : KataOutput
+        protected class $fileinputname$Output(TOutput output) : KataOutput(output)
         {
-            public $fileinputname$Output($output$)
-                : base(output) { }
+            public static readonly $fileinputname$Output Default = new(default);
 
-            public new $output$ Value => ($output$)base.Value;
+            public new TOutput Value => (TOutput)base.Value;
 
             public override string AsStringValue()
             {
                 StringBuilder builder = new();
-
-                // Build output string using StringBuilder
 
                 return builder.ToString();
             }

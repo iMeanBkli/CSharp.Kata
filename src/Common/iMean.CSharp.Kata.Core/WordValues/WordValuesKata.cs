@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
-// <copyright file="JavanaisKata.cs" company="iMean.CSharp.Kata.Core.Javanais">
-//   Copyright (c) iMean.CSharp.Kata.Core.Javanais All rights reserved.
+// <copyright file="WordValuesKata.cs" company="iMean.CSharp.Kata.Core.WordValuesKata">
+//   Copyright (c) iMean.CSharp.Kata.Core.WordValuesKata All rights reserved.
 // </copyright>
 // <author>iMeanBkli</author>
 // -----------------------------------------------------------------------------
@@ -18,43 +18,31 @@ namespace iMean.CSharp.Kata.Core.WordValues
         // Constants
         // -------------------------------------
 
+        private static readonly string[] INPUT = ["abc", "cba abc", "cba"];
+
         private const string WHITE_SPACE = " ";
         private static readonly int LOWERCASE_A_ASCII_CODE = (int)'a';
         private static readonly int LOWERCASE_Z_ASCII_CODE = (int)'z';
-        private static readonly string[] INPUT = ["abc", "cba abc", "cba"];
+        
 
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
 
-        private async Task<WordValuesOutput> ComputeValueAsync(WordValuesInput input)
-        {
-            ArgumentNullException.ThrowIfNull(input, nameof(input));
-            ArgumentNullException.ThrowIfNull(input.WordInputValues, nameof(input.WordInputValues));
-
-            string[] words = input.WordInputValues;
-            BufferBlock<KeyValuePair<int, string>> buffer = new();
-            Task<int[]> consumerTask = ConsumeAsync(buffer);
-
-            ProduceWords(words, buffer);
-
-            int[] output = await consumerTask;
-
-            return new WordValuesOutput(output);
-        }
-
         private int ComputeWordValue(string word)
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(word);
 
-            if (word.Any(l => (int)l < LOWERCASE_A_ASCII_CODE || (int)l > LOWERCASE_Z_ASCII_CODE))
+            if (word.Any(l =>
+                (int)l < LOWERCASE_A_ASCII_CODE ||
+                (int)l > LOWERCASE_Z_ASCII_CODE))
             {
                 throw new ArgumentException($"Word must contain only alphabetical letters. '{word}' is invalid.");
             }
 
             string trimedWord = word.Replace(WHITE_SPACE, string.Empty);
 
-            int wordValue = trimedWord.Select(c => char.ToUpper(c) - LOWERCASE_A_ASCII_CODE).Sum();
+            int wordValue = trimedWord.Select(c => char.ToLower(c) - LOWERCASE_A_ASCII_CODE).Sum();
 
             return wordValue;
         }
@@ -62,18 +50,6 @@ namespace iMean.CSharp.Kata.Core.WordValues
         // -------------------------------------
         // TPL Dataflow
         // -------------------------------------
-
-        private static void ProduceWords(string[] words, ITargetBlock<KeyValuePair<int, string>> target)
-        {
-            for (int i = 0; i < words.Length; i++)
-            {
-                var word = new KeyValuePair<int, string>(i + 1, words[i].ToLower());
-
-                target.Post(word);
-            }
-
-            target.Complete();
-        }
 
         private async Task<int[]> ConsumeAsync(ISourceBlock<KeyValuePair<int, string>> source)
         {
@@ -90,35 +66,62 @@ namespace iMean.CSharp.Kata.Core.WordValues
             return [.. values];
         }
 
+        private void ProduceData(string[] input, ITargetBlock<KeyValuePair<int, string>> target)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                var word = new KeyValuePair<int, string>(i + 1, input[i].ToLower());
+
+                target.Post(word);
+            }
+
+            target.Complete();
+        }
+
+        private async Task<WordValuesOutput> RunDataflowAsync(WordValuesInput input)
+        {
+            ArgumentNullException.ThrowIfNull(input, nameof(input));
+            ArgumentNullException.ThrowIfNull(input.Value, nameof(input.Value));
+
+            string[] value = input.Value;
+            BufferBlock<KeyValuePair<int, string>> buffer = new();
+            Task<int[]> consumerTask = ConsumeAsync(buffer);
+
+            ProduceData(value, buffer);
+
+            int[] output = await consumerTask;
+
+            return new WordValuesOutput(output);
+        }
+
         // -------------------------------------
         // Overriden Members
         // -------------------------------------
 
         public override bool IsAsync => true;
 
-        public override string Name => "Word Values";
+        public override string Name => "WordValues";
 
         public override IKataInput GetKataInput() => new WordValuesInput(INPUT);
 
         protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
-            if (input is WordValuesInput wordValuesInput)
+            if (input is WordValuesInput kataInput)
             {
-                return await ComputeValueAsync(wordValuesInput);
+                return await RunDataflowAsync(kataInput);
             }
 
             throw new InvalidOperationException($"Input {input} must be of type {nameof(WordValuesInput)}.");
         }
 
-        protected class WordValuesInput(string[] values) : KataInput
+        protected class WordValuesInput(string[] value) : KataInput
         {
-            public string[]? WordInputValues { get; init; } = values;
+            public string[]? Value { get; init; } = value;
         }
 
-        protected class WordValuesOutput : KataOutput
+        protected class WordValuesOutput(int[] output) : KataOutput(output)
         {
-            public WordValuesOutput(int[] output)
-                : base(output) { }
+            public static readonly WordValuesOutput Default = new([]);
 
             public new int[] Value => (int[]) base.Value;
 
