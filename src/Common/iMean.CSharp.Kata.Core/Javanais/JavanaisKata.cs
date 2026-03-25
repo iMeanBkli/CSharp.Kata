@@ -18,6 +18,8 @@ namespace iMean.CSharp.Kata.Core.Javanais
         // Constants
         // -------------------------------------
 
+        private const string INPUT = "This is my Javanais implementation";
+
         private const string CYPHER = "av";
         private static readonly char[] VOWELS = ['a', 'e', 'i', 'o', 'u', 'y'];
 
@@ -30,13 +32,6 @@ namespace iMean.CSharp.Kata.Core.Javanais
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
-
-        private JavanaisInput GetJavanaisInput()
-        {
-            string word = "This is my Javanais implementation";
-
-            return new JavanaisInput(word);
-        }
 
         private async Task<JavanaisOutput> TranslateToJavanaisAsync(JavanaisInput input)
         {
@@ -130,7 +125,7 @@ namespace iMean.CSharp.Kata.Core.Javanais
 
         public override bool IsAsync => true;
 
-        public override IKataInput GetKataInput() => GetJavanaisInput();
+        public override IKataInput GetKataInput() => new JavanaisInput(INPUT);
 
         protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {

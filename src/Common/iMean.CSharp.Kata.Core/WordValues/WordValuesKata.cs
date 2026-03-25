@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// <copyright file="JavanaisKata.cs" company="iMean.CSharp.Kata.Core.Javanais">
+//   Copyright (c) iMean.CSharp.Kata.Core.Javanais All rights reserved.
+// </copyright>
+// <author>iMeanBkli</author>
+// -----------------------------------------------------------------------------
+
 using System.Text;
 using System.Threading.Tasks.Dataflow;
 
@@ -7,16 +14,18 @@ namespace iMean.CSharp.Kata.Core.WordValues
 {
     public class WordValuesKata : BaseKata
     {
-        public override bool IsAsync => false;
+        // -------------------------------------
+        // Constants
+        // -------------------------------------
+
+        private const string WHITE_SPACE = " ";
+        private static readonly int LOWERCASE_A_ASCII_CODE = (int)'a';
+        private static readonly int LOWERCASE_Z_ASCII_CODE = (int)'z';
+        private static readonly string[] INPUT = ["abc", "cba abc", "cba"];
 
         // -------------------------------------
         // Kata Implementation
         // -------------------------------------
-
-        private WordValuesInput GetWordValuesInput()
-        {
-            return new WordValuesInput(["abc", "cba abc", "cba"]);
-        }
 
         private async Task<WordValuesOutput> ComputeValueAsync(WordValuesInput input)
         {
@@ -38,10 +47,14 @@ namespace iMean.CSharp.Kata.Core.WordValues
         {
             ArgumentNullException.ThrowIfNullOrWhiteSpace(word);
 
-            const string WHITE_SPACE = " ";
+            if (word.Any(l => (int)l < LOWERCASE_A_ASCII_CODE || (int)l > LOWERCASE_Z_ASCII_CODE))
+            {
+                throw new ArgumentException($"Word must contain only alphabetical letters. '{word}' is invalid.");
+            }
+
             string trimedWord = word.Replace(WHITE_SPACE, string.Empty);
 
-            int wordValue = trimedWord.Select(c => char.ToUpper(c) - 64).Sum();
+            int wordValue = trimedWord.Select(c => char.ToUpper(c) - LOWERCASE_A_ASCII_CODE).Sum();
 
             return wordValue;
         }
@@ -54,7 +67,7 @@ namespace iMean.CSharp.Kata.Core.WordValues
         {
             for (int i = 0; i < words.Length; i++)
             {
-                var word = new KeyValuePair<int, string>(i + 1, words[i]);
+                var word = new KeyValuePair<int, string>(i + 1, words[i].ToLower());
 
                 target.Post(word);
             }
@@ -81,9 +94,11 @@ namespace iMean.CSharp.Kata.Core.WordValues
         // Overriden Members
         // -------------------------------------
 
+        public override bool IsAsync => true;
+
         public override string Name => "Word Values";
 
-        public override IKataInput GetKataInput() => GetWordValuesInput();
+        public override IKataInput GetKataInput() => new WordValuesInput(INPUT);
 
         protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
