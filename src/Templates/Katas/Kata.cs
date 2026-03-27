@@ -1,9 +1,9 @@
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="$safeitemname$.cs" company="$rootnamespace$">
 //   Copyright (c) $rootnamespace$ All rights reserved.
 // </copyright>
 // <author>$author$</author>
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 using System.Text;
 using System.Threading.Tasks.Dataflow;
@@ -15,20 +15,20 @@ namespace $rootnamespace$
 
     public class $fileinputname$Kata : BaseKata
     {
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Constants
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
         private static readonly TInput INPUT = null;
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Kata Implementation
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // TPL Dataflow
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
         private async Task<TOutput> ConsumeAsync(ISourceBlock<TProduct> source)
         {
@@ -50,8 +50,9 @@ namespace $rootnamespace$
         private async Task<$fileinputname$Output> RunDataflowAsync($fileinputname$Input input)
         {
             ArgumentNullException.ThrowIfNull(input, nameof(input));
+            ArgumentNullException.ThrowIfNull(input.Value, nameof(input));
 
-            TInput value = input.Input;
+            TInput value = input.Value;
             BufferBlock<TProduct> buffer = new();
             Task<TOutput> consumerTask = ConsumeAsync(buffer);
 
@@ -62,24 +63,21 @@ namespace $rootnamespace$
             return new $fileinputname$Output(output);
         }
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Overriden Members
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
         public override bool IsAsync => true;
 
         public override string Name => "$fileinputname$";
 
-        protected override IKataInput GetKataInput() => new $fileinputname$Input(INPUT);
+        public override IKataInput GetKataInput() => new $fileinputname$Input(INPUT);
 
         protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
-            if (input is $fileinputname$Input kataInput)
-            {
-                return await RunDataflowAsync(kataInput);
-            }
-
-            throw new InvalidOperationException($"Input {input} must be of type {nameof(kataInput)}.");
+            return input is $fileinputname$Input kataInput
+                ? (IKataOutput) await RunDataflowAsync(kataInput)
+                : throw new InvalidOperationException($"Input {input} must be of type {nameof(kataInput)}.");
         }
 
         protected class $fileinputname$Input(TInput value) : KataInput
