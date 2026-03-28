@@ -5,6 +5,8 @@
   </Folder>
   <Folder Name="/Templates/" />
   <Folder Name="/Templates/Katas/">
+    <File Path="src/Templates/Katas/Kata.cs" />
+    <File Path="src/Templates/Katas/Kata.vstemplate" />
     <File Path="src/Templates/Katas/README.md" />
   </Folder>
   <Folder Name="/Éléments de solution/">

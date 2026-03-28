@@ -1,9 +1,9 @@
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="JavanaisKata.cs" company="iMean.CSharp.Kata.Core.Javanais">
 //   Copyright (c) iMean.CSharp.Kata.Core.Javanais All rights reserved.
 // </copyright>
 // <author>iMeanBkli</author>
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 using System.Text;
 using System.Threading.Tasks.Dataflow;
@@ -14,9 +14,11 @@ namespace iMean.CSharp.Kata.Core.Javanais
 {
     public class JavanaisKata : BaseKata
     {
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Constants
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
+
+        private const string INPUT = "This is my Javanais implementation";
 
         private const string CYPHER = "av";
         private static readonly char[] VOWELS = ['a', 'e', 'i', 'o', 'u', 'y'];
@@ -27,37 +29,11 @@ namespace iMean.CSharp.Kata.Core.Javanais
         private const int LOWERCASE_Z_ASCII_CODE = 122;
 
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Kata Implementation
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
-        private JavanaisInput GetJavanaisInput()
-        {
-            string word = "This is my Javanais implementation";
-
-            return new JavanaisInput(word);
-        }
-
-        private async Task<JavanaisOutput> TranslateToJavanaisAsync(JavanaisInput input)
-        {
-            if (string.IsNullOrWhiteSpace(input.Word))
-            {
-                return JavanaisOutput.Default;
-            }
-
-            BufferBlock<string> buffer = new();
-            Task<string> consumerTask = ConsumeAsync(buffer);
-
-            ProduceChunks(input.Word, buffer);
-
-            string result = await consumerTask;
-
-            JavanaisOutput output = new(result);
-
-            return output;
-        }
-
-        private static string TranslateToJavanais(string word)
+        private string TranslateToJavanais(string word)
         {
             if (string.IsNullOrWhiteSpace(word))
             {
@@ -85,15 +61,30 @@ namespace iMean.CSharp.Kata.Core.Javanais
 
         private static bool IsVowel(char letter) => VOWELS.Any(v => v == letter);
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // TPL Dataflow
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
-        private static void ProduceChunks(string word, ITargetBlock<string> target)
+        private async Task<string> ConsumeAsync(ISourceBlock<string> source)
+        {
+            StringBuilder output = new();
+
+            while (await source.OutputAvailableAsync())
+            {
+                string data = await source.ReceiveAsync();
+
+                string result = TranslateToJavanais(data);
+                output.Append(result);
+            }
+
+            return output.ToString();
+        }
+
+        private void ProduceData(string input, ITargetBlock<string> target)
         {
             StringBuilder chunk = new();
 
-            foreach (char @char in word)
+            foreach (char @char in input)
             {
                 chunk.Append(@char);
 
@@ -107,44 +98,45 @@ namespace iMean.CSharp.Kata.Core.Javanais
             target.Complete();
         }
 
-        private async Task<string> ConsumeAsync(ISourceBlock<string> source)
+        private async Task<JavanaisOutput> RunDataflowAsync(JavanaisInput input)
         {
-            StringBuilder output = new();
-
-            while(await source.OutputAvailableAsync())
+            if (string.IsNullOrWhiteSpace(input.Value))
             {
-                string data = await source.ReceiveAsync();
-                string encrypted = TranslateToJavanais(data);
-
-                output.Append(encrypted);
+                return JavanaisOutput.Default;
             }
 
-            return output.ToString();
+            BufferBlock<string> buffer = new();
+            Task<string> consumerTask = ConsumeAsync(buffer);
+
+            ProduceData(input.Value, buffer);
+            string output = await consumerTask;
+
+            return new JavanaisOutput(output);
         }
 
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
         // Overriden Members
-        // -------------------------------------
+        // ------------------------------------------------------------------------------------------------------------
 
         public override string Name => "Javanais";
 
         public override bool IsAsync => true;
 
-        public override IKataInput GetKataInput() => GetJavanaisInput();
+        public override IKataInput GetKataInput() => new JavanaisInput(INPUT);
 
         protected override async Task<IKataOutput> DoExecuteAsync(IKataInput input)
         {
             if (input is JavanaisInput kataInput)
             {
-                return await TranslateToJavanaisAsync(kataInput);
+                return await RunDataflowAsync(kataInput);
             }
 
             throw new InvalidOperationException($"Input {input} must be of type {nameof(JavanaisInput)}.");
         }
 
-        protected class JavanaisInput(string word) : KataInput
+        protected class JavanaisInput(string value) : KataInput
         {
-            public string Word { get; init; } = word;
+            public string Value { get; init; } = value;
         }
 
         protected class JavanaisOutput(string output) : KataOutput(output)

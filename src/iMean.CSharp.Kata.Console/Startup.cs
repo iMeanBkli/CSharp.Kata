@@ -108,10 +108,8 @@ namespace iMean.CSharp.Kata.Console
 
             if (output.HasValue)
             {
-                Panel outputPanel = new(output.AsStringValue());
-                outputPanel.Header($"{kata.Name} - Output");
-
-                AnsiConsole.Write(outputPanel);
+                string outputString = output.AsStringValue();
+                AnsiConsole.Write(outputString);
             }
         }
 

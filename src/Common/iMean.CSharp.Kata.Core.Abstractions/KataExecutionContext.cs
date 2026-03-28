@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// <copyright file="KataExecutionContext.cs" company="iMean.CSharp.Kata.Core.Abstractions">
+//   Copyright (c) iMean.CSharp.Kata.Core.Abstractions All rights reserved.
+// </copyright>
+// <author>iMeanBkli</author>
+// -----------------------------------------------------------------------------
+
 namespace iMean.CSharp.Kata.Core.Abstractions
 {
     public class KataExecutionContext
